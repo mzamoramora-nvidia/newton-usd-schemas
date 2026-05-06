@@ -1,4 +1,4 @@
-# 0.2.0rc1
+# 0.2.0
 
 ## Features
 
@@ -14,6 +14,10 @@
   - Control input delay can be added by applying `NewtonActuatorDelayAPI`
   - All actuator attributes use pure SI units (meters, radians, seconds, kg)
     - Rotational attributes use radians, diverging from `UsdPhysicsDriveAPI` which uses degrees
+
+## Fixes
+
+- Realigned torsional & rolling friction fallback values with Newton's ShapeConfig (matching MuJoCo's native defaults).
 
 # 0.1.0
 
