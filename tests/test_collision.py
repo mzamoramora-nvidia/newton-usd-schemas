@@ -112,6 +112,9 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
         self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandInnerFraction"))
         self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandOuterFraction"))
         self.assertTrue(self.prim.HasAttribute("newton:sdfMarginFraction"))
+        # Hydroelastic attrs are folded into this API
+        self.assertTrue(self.prim.HasAttribute("newton:hydroelasticEnabled"))
+        self.assertTrue(self.prim.HasAttribute("newton:kh"))
         # Inherited from NewtonCollisionAPI
         self.assertTrue(self.prim.HasAttribute("newton:contactMargin"))
         self.assertTrue(self.prim.HasAttribute("newton:contactGap"))
@@ -262,55 +265,19 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
             self.assertAlmostEqual(hard.GetMinimum(), 0.0)
             self.assertIsNone(hard.GetMaximum())
 
-
-class TestNewtonHydroelasticCollisionAPI(unittest.TestCase):
-    def setUp(self):
-        self.stage: Usd.Stage = Usd.Stage.CreateInMemory()
-        self.prim: Usd.Prim = UsdGeom.Cube.Define(self.stage, "/Collider").GetPrim()
-
-    def test_api_registered(self):
-        plug_type = Plug.Registry().FindTypeByName("NewtonPhysicsHydroelasticCollisionAPI")
-        self.assertEqual(plug_type.typeName, "NewtonPhysicsHydroelasticCollisionAPI")
-        schema_type = Usd.SchemaRegistry().GetSchemaTypeName("NewtonPhysicsHydroelasticCollisionAPI")
-        self.assertEqual(schema_type, "NewtonHydroelasticCollisionAPI")
-
-    def test_api_application(self):
-        self.prim.ApplyAPI("NewtonHydroelasticCollisionAPI")
-        # Should inherit full chain
-        self.assertTrue(self.prim.HasAPI("NewtonHydroelasticCollisionAPI"))
-        self.assertTrue(self.prim.HasAPI("NewtonSDFCollisionAPI"))
-        self.assertTrue(self.prim.HasAPI("NewtonCollisionAPI"))
-        self.assertTrue(self.prim.HasAPI("PhysicsCollisionAPI"))
-
-        # Enable bool
-        self.assertTrue(self.prim.HasAttribute("newton:hydroelasticEnabled"))
-        # Hydroelastic attr
-        self.assertTrue(self.prim.HasAttribute("newton:kh"))
-        # Inherited SDF attrs
-        self.assertTrue(self.prim.HasAttribute("newton:sdfEnabled"))
-        self.assertTrue(self.prim.HasAttribute("newton:sdfMaxResolution"))
-        self.assertTrue(self.prim.HasAttribute("newton:sdfTextureFormat"))
-        # Inherited collision attrs
-        self.assertTrue(self.prim.HasAttribute("newton:contactMargin"))
-
-    def test_api_applicability(self):
-        # Matches PhysicsCollisionAPI: applicable to any prim type.
-        xform: Usd.Prim = UsdGeom.Xform.Define(self.stage, "/AnyPrim").GetPrim()
-        self.assertTrue(xform.CanApplyAPI("NewtonHydroelasticCollisionAPI"))
-
     def test_hydroelastic_enabled(self):
-        self.prim.ApplyAPI("NewtonHydroelasticCollisionAPI")
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
         attr = self.prim.GetAttribute("newton:hydroelasticEnabled")
         self.assertIsNotNone(attr)
         self.assertFalse(attr.HasAuthoredValue())
+        self.assertFalse(attr.Get())  # opt-in: defaults to false
+
+        attr.Set(True)
+        self.assertTrue(attr.HasAuthoredValue())
         self.assertTrue(attr.Get())
 
-        attr.Set(False)
-        self.assertTrue(attr.HasAuthoredValue())
-        self.assertFalse(attr.Get())
-
     def test_kh(self):
-        self.prim.ApplyAPI("NewtonHydroelasticCollisionAPI")
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
         attr = self.prim.GetAttribute("newton:kh")
         self.assertIsNotNone(attr)
         self.assertFalse(attr.HasAuthoredValue())
