@@ -32,10 +32,14 @@ class TestNewtonCollisionAPI(unittest.TestCase):
         self.assertTrue(self.prim.HasAttribute("physics:collisionEnabled"))  # from PhysicsCollisionAPI
         self.assertTrue(self.prim.HasAttribute("newton:contactMargin"))  # from NewtonCollisionAPI
         self.assertTrue(self.prim.HasAttribute("newton:contactGap"))  # from NewtonCollisionAPI
+        # SDF/hydro attrs should NOT be present on bare NewtonCollisionAPI
+        self.assertFalse(self.prim.HasAttribute("newton:sdfMaxResolution"))
+        self.assertFalse(self.prim.HasAttribute("newton:kh"))
 
-    def test_api_limitations(self):
-        xform: Usd.Prim = UsdGeom.Xform.Define(self.stage, "/InvalidType").GetPrim()
-        self.assertFalse(xform.CanApplyAPI("NewtonCollisionAPI"))
+    def test_api_applicability(self):
+        # Matches PhysicsCollisionAPI: applicable to any prim type.
+        xform: Usd.Prim = UsdGeom.Xform.Define(self.stage, "/AnyPrim").GetPrim()
+        self.assertTrue(xform.CanApplyAPI("NewtonCollisionAPI"))
 
     def test_contact_margin(self):
         self.assertFalse(self.prim.HasAttribute("newton:contactMargin"))
@@ -70,6 +74,251 @@ class TestNewtonCollisionAPI(unittest.TestCase):
         self.assertTrue(success)
         self.assertTrue(attr.HasAuthoredValue())
         self.assertAlmostEqual(attr.Get(), 0.1)
+
+        if USD_HAS_LIMITS:
+            hard = attr.GetHardLimits()
+            self.assertTrue(hard.IsValid())
+            self.assertAlmostEqual(hard.GetMinimum(), 0.0)
+            self.assertIsNone(hard.GetMaximum())
+
+
+class TestNewtonSDFCollisionAPI(unittest.TestCase):
+    def setUp(self):
+        self.stage: Usd.Stage = Usd.Stage.CreateInMemory()
+        self.prim: Usd.Prim = UsdGeom.Cube.Define(self.stage, "/Collider").GetPrim()
+
+    def test_api_registered(self):
+        plug_type = Plug.Registry().FindTypeByName("NewtonPhysicsSDFCollisionAPI")
+        self.assertEqual(plug_type.typeName, "NewtonPhysicsSDFCollisionAPI")
+        schema_type = Usd.SchemaRegistry().GetSchemaTypeName("NewtonPhysicsSDFCollisionAPI")
+        self.assertEqual(schema_type, "NewtonSDFCollisionAPI")
+
+    def test_api_application(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        # Should inherit NewtonCollisionAPI and PhysicsCollisionAPI
+        self.assertTrue(self.prim.HasAPI("NewtonSDFCollisionAPI"))
+        self.assertTrue(self.prim.HasAPI("NewtonCollisionAPI"))
+        self.assertTrue(self.prim.HasAPI("PhysicsCollisionAPI"))
+
+        # Enable bool
+        self.assertTrue(self.prim.HasAttribute("newton:sdfEnabled"))
+        # SDF attrs
+        self.assertTrue(self.prim.HasAttribute("newton:sdfMaxResolution"))
+        self.assertTrue(self.prim.HasAttribute("newton:sdfTargetVoxelSize"))
+        self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandInner"))
+        self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandOuter"))
+        self.assertTrue(self.prim.HasAttribute("newton:sdfTextureFormat"))
+        # Fractional variants
+        self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandInnerFraction"))
+        self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandOuterFraction"))
+        self.assertTrue(self.prim.HasAttribute("newton:sdfMarginFraction"))
+        # Inherited from NewtonCollisionAPI
+        self.assertTrue(self.prim.HasAttribute("newton:contactMargin"))
+        self.assertTrue(self.prim.HasAttribute("newton:contactGap"))
+
+    def test_api_applicability(self):
+        # Matches PhysicsCollisionAPI: applicable to any prim type.
+        xform: Usd.Prim = UsdGeom.Xform.Define(self.stage, "/AnyPrim").GetPrim()
+        self.assertTrue(xform.CanApplyAPI("NewtonSDFCollisionAPI"))
+
+    def test_sdf_enabled(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfEnabled")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertTrue(attr.Get())
+
+        attr.Set(False)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertFalse(attr.Get())
+
+    def test_sdf_max_resolution(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfMaxResolution")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertEqual(attr.Get(), 64)
+
+        attr.Set(128)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertEqual(attr.Get(), 128)
+
+        if USD_HAS_LIMITS:
+            hard = attr.GetHardLimits()
+            self.assertTrue(hard.IsValid())
+            self.assertEqual(hard.GetMinimum(), 8)
+            self.assertIsNone(hard.GetMaximum())
+
+    def test_sdf_target_voxel_size(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfTargetVoxelSize")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.0)
+
+        attr.Set(0.005)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.005)
+
+        if USD_HAS_LIMITS:
+            hard = attr.GetHardLimits()
+            self.assertTrue(hard.IsValid())
+            self.assertAlmostEqual(hard.GetMinimum(), 0.0)
+            self.assertIsNone(hard.GetMaximum())
+
+    def test_sdf_narrow_band_inner(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfNarrowBandInner")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), -0.1)
+
+        attr.Set(-0.02)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), -0.02)
+
+        if USD_HAS_LIMITS:
+            soft = attr.GetSoftLimits()
+            self.assertTrue(soft.IsValid())
+            self.assertIsNone(soft.GetMinimum())
+            self.assertAlmostEqual(soft.GetMaximum(), 0.0)
+
+    def test_sdf_narrow_band_outer(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfNarrowBandOuter")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.1)
+
+        attr.Set(0.02)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.02)
+
+        if USD_HAS_LIMITS:
+            soft = attr.GetSoftLimits()
+            self.assertTrue(soft.IsValid())
+            self.assertAlmostEqual(soft.GetMinimum(), 0.0)
+            self.assertIsNone(soft.GetMaximum())
+
+    def test_sdf_texture_format(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfTextureFormat")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertEqual(attr.Get(), "uint16")
+
+        attr.Set("float32")
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertEqual(attr.Get(), "float32")
+
+    def test_sdf_narrow_band_inner_fraction(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfNarrowBandInnerFraction")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.0)
+
+        attr.Set(-0.01)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), -0.01)
+
+        if USD_HAS_LIMITS:
+            soft = attr.GetSoftLimits()
+            self.assertTrue(soft.IsValid())
+            self.assertIsNone(soft.GetMinimum())
+            self.assertAlmostEqual(soft.GetMaximum(), 0.0)
+
+    def test_sdf_narrow_band_outer_fraction(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfNarrowBandOuterFraction")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.0)
+
+        attr.Set(0.01)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.01)
+
+        if USD_HAS_LIMITS:
+            hard = attr.GetHardLimits()
+            self.assertTrue(hard.IsValid())
+            self.assertAlmostEqual(hard.GetMinimum(), 0.0)
+            self.assertIsNone(hard.GetMaximum())
+
+    def test_sdf_margin_fraction(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfMarginFraction")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.0)
+
+        attr.Set(0.01)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.01)
+
+        if USD_HAS_LIMITS:
+            hard = attr.GetHardLimits()
+            self.assertTrue(hard.IsValid())
+            self.assertAlmostEqual(hard.GetMinimum(), 0.0)
+            self.assertIsNone(hard.GetMaximum())
+
+
+class TestNewtonHydroelasticCollisionAPI(unittest.TestCase):
+    def setUp(self):
+        self.stage: Usd.Stage = Usd.Stage.CreateInMemory()
+        self.prim: Usd.Prim = UsdGeom.Cube.Define(self.stage, "/Collider").GetPrim()
+
+    def test_api_registered(self):
+        plug_type = Plug.Registry().FindTypeByName("NewtonPhysicsHydroelasticCollisionAPI")
+        self.assertEqual(plug_type.typeName, "NewtonPhysicsHydroelasticCollisionAPI")
+        schema_type = Usd.SchemaRegistry().GetSchemaTypeName("NewtonPhysicsHydroelasticCollisionAPI")
+        self.assertEqual(schema_type, "NewtonHydroelasticCollisionAPI")
+
+    def test_api_application(self):
+        self.prim.ApplyAPI("NewtonHydroelasticCollisionAPI")
+        # Should inherit full chain
+        self.assertTrue(self.prim.HasAPI("NewtonHydroelasticCollisionAPI"))
+        self.assertTrue(self.prim.HasAPI("NewtonSDFCollisionAPI"))
+        self.assertTrue(self.prim.HasAPI("NewtonCollisionAPI"))
+        self.assertTrue(self.prim.HasAPI("PhysicsCollisionAPI"))
+
+        # Enable bool
+        self.assertTrue(self.prim.HasAttribute("newton:hydroelasticEnabled"))
+        # Hydroelastic attr
+        self.assertTrue(self.prim.HasAttribute("newton:kh"))
+        # Inherited SDF attrs
+        self.assertTrue(self.prim.HasAttribute("newton:sdfEnabled"))
+        self.assertTrue(self.prim.HasAttribute("newton:sdfMaxResolution"))
+        self.assertTrue(self.prim.HasAttribute("newton:sdfTextureFormat"))
+        # Inherited collision attrs
+        self.assertTrue(self.prim.HasAttribute("newton:contactMargin"))
+
+    def test_api_applicability(self):
+        # Matches PhysicsCollisionAPI: applicable to any prim type.
+        xform: Usd.Prim = UsdGeom.Xform.Define(self.stage, "/AnyPrim").GetPrim()
+        self.assertTrue(xform.CanApplyAPI("NewtonHydroelasticCollisionAPI"))
+
+    def test_hydroelastic_enabled(self):
+        self.prim.ApplyAPI("NewtonHydroelasticCollisionAPI")
+        attr = self.prim.GetAttribute("newton:hydroelasticEnabled")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertTrue(attr.Get())
+
+        attr.Set(False)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertFalse(attr.Get())
+
+    def test_kh(self):
+        self.prim.ApplyAPI("NewtonHydroelasticCollisionAPI")
+        attr = self.prim.GetAttribute("newton:kh")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 1e10)
+
+        attr.Set(1e7)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 1e7)
 
         if USD_HAS_LIMITS:
             hard = attr.GetHardLimits()
