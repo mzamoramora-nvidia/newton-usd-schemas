@@ -438,7 +438,7 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         }
     )
     uniform float newton:sdfTargetVoxelSize = 0 (
-        doc = """Target voxel size for the sparse SDF grid [m].
+        doc = """Target voxel size for the sparse SDF grid.
 
         When authored with a positive value, takes precedence over
         newton:sdfMaxResolution. When 0 (default), newton:sdfMaxResolution
@@ -453,7 +453,7 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         }
     )
     uniform float newton:sdfNarrowBandInner = -0.1 (
-        doc = """Inner (negative) narrow band distance for SDF computation [m].
+        doc = """Inner (negative) narrow band distance for SDF computation.
 
         Range: (-inf, 0]
         Units: distance"""
@@ -483,7 +483,7 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         }
     )
     uniform float newton:sdfNarrowBandOuter = 0.1 (
-        doc = """Outer (positive) narrow band distance for SDF computation [m].
+        doc = """Outer (positive) narrow band distance for SDF computation.
 
         Range: [0, inf)
         Units: distance"""
@@ -520,7 +520,7 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         "uint8" uses 8-bit textures for minimum memory."""
     )
     uniform float newton:sdfMargin = 0.05 (
-        doc = """SDF boundary margin [m].
+        doc = """SDF boundary margin.
 
         Enlarges the SDF boundary beyond the mesh AABB by this distance,
         enabling precise distance queries slightly outside the geometry.
