@@ -37,9 +37,11 @@ class TestNewtonCollisionAPI(unittest.TestCase):
         self.assertFalse(self.prim.HasAttribute("newton:kh"))
 
     def test_api_applicability(self):
-        # Matches PhysicsCollisionAPI: applicable to any prim type.
-        xform: Usd.Prim = UsdGeom.Xform.Define(self.stage, "/AnyPrim").GetPrim()
-        self.assertTrue(xform.CanApplyAPI("NewtonCollisionAPI"))
+        # Restricted to Gprim subtypes via apiSchemaCanOnlyApplyTo.
+        xform: Usd.Prim = UsdGeom.Xform.Define(self.stage, "/AnyXform").GetPrim()
+        self.assertFalse(xform.CanApplyAPI("NewtonCollisionAPI"))
+        cube: Usd.Prim = UsdGeom.Cube.Define(self.stage, "/AnyCube").GetPrim()
+        self.assertTrue(cube.CanApplyAPI("NewtonCollisionAPI"))
 
     def test_contact_margin(self):
         self.assertFalse(self.prim.HasAttribute("newton:contactMargin"))

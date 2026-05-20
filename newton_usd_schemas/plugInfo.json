@@ -65,7 +65,10 @@
               "bases": [
                 "UsdAPISchemaBase"
               ],
-              "schemaKind": "singleApplyAPI"
+              "schemaKind": "singleApplyAPI",
+              "apiSchemaCanOnlyApplyTo": [
+                "Gprim"
+              ]
             },
             "NewtonPhysicsSDFCollisionAPI": {
               "schemaIdentifier": "NewtonSDFCollisionAPI",
