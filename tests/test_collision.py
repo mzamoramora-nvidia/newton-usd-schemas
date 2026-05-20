@@ -156,7 +156,7 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
         attr = self.prim.GetAttribute("newton:sdfTargetVoxelSize")
         self.assertIsNotNone(attr)
         self.assertFalse(attr.HasAuthoredValue())
-        self.assertAlmostEqual(attr.Get(), 0.0)
+        self.assertEqual(attr.Get(), -math.inf)
 
         attr.Set(0.005)
         self.assertTrue(attr.HasAuthoredValue())
@@ -218,24 +218,24 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
         attr = self.prim.GetAttribute("newton:sdfNarrowBandInnerFraction")
         self.assertIsNotNone(attr)
         self.assertFalse(attr.HasAuthoredValue())
-        self.assertAlmostEqual(attr.Get(), 0.0)
+        self.assertEqual(attr.Get(), -math.inf)
 
         attr.Set(-0.01)
         self.assertTrue(attr.HasAuthoredValue())
         self.assertAlmostEqual(attr.Get(), -0.01)
 
         if USD_HAS_LIMITS:
-            soft = attr.GetSoftLimits()
-            self.assertTrue(soft.IsValid())
-            self.assertIsNone(soft.GetMinimum())
-            self.assertAlmostEqual(soft.GetMaximum(), 0.0)
+            hard = attr.GetHardLimits()
+            self.assertTrue(hard.IsValid())
+            self.assertIsNone(hard.GetMinimum())
+            self.assertAlmostEqual(hard.GetMaximum(), 0.0)
 
     def test_sdf_narrow_band_outer_fraction(self):
         self.prim.ApplyAPI("NewtonSDFCollisionAPI")
         attr = self.prim.GetAttribute("newton:sdfNarrowBandOuterFraction")
         self.assertIsNotNone(attr)
         self.assertFalse(attr.HasAuthoredValue())
-        self.assertAlmostEqual(attr.Get(), 0.0)
+        self.assertEqual(attr.Get(), -math.inf)
 
         attr.Set(0.01)
         self.assertTrue(attr.HasAuthoredValue())
@@ -252,7 +252,7 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
         attr = self.prim.GetAttribute("newton:sdfMarginFraction")
         self.assertIsNotNone(attr)
         self.assertFalse(attr.HasAuthoredValue())
-        self.assertAlmostEqual(attr.Get(), 0.0)
+        self.assertEqual(attr.Get(), -math.inf)
 
         attr.Set(0.01)
         self.assertTrue(attr.HasAuthoredValue())

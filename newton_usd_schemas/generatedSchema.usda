@@ -437,14 +437,16 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
             }
         }
     )
-    uniform float newton:sdfTargetVoxelSize = 0 (
+    uniform float newton:sdfTargetVoxelSize = -inf (
         doc = """Target voxel size for the sparse SDF grid.
 
         When authored with a positive value, takes precedence over
-        newton:sdfMaxResolution. When 0 (default), newton:sdfMaxResolution
+        newton:sdfMaxResolution.
+
+        If `newton:sdfTargetVoxelSize` is set to `-inf`, newton:sdfMaxResolution
         is used instead.
 
-        Range: [0, inf)
+        Range: (0, inf)
         Units: distance"""
         limits = {
             dictionary hard = {
@@ -463,21 +465,22 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
             }
         }
     )
-    uniform float newton:sdfNarrowBandInnerFraction = 0 (
+    uniform float newton:sdfNarrowBandInnerFraction = -inf (
         doc = """Inner narrow band as a fraction of the local-space bounding
         box diagonal.
 
-        When authored with a non-zero value, overrides newton:sdfNarrowBandInner
+        When authored with a negative value, overrides newton:sdfNarrowBandInner
         at parse time. The absolute distance used for SDF generation is computed
         as fraction * bbox_diagonal. Negative values are expected (band extends
         inside the surface).
 
-        A value of 0 (default) means "not set"; sdfNarrowBandInner is used.
+        If `newton:sdfNarrowBandInnerFraction` is set to `-inf`,
+        newton:sdfNarrowBandInner is used instead.
 
-        Range: (-inf, 0]
+        Range: (-inf, 0)
         Units: dimensionless"""
         limits = {
-            dictionary soft = {
+            dictionary hard = {
                 float maximum = 0
             }
         }
@@ -493,17 +496,18 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
             }
         }
     )
-    uniform float newton:sdfNarrowBandOuterFraction = 0 (
+    uniform float newton:sdfNarrowBandOuterFraction = -inf (
         doc = """Outer narrow band as a fraction of the local-space bounding
         box diagonal.
 
-        When authored with a non-zero value, overrides newton:sdfNarrowBandOuter
+        When authored with a positive value, overrides newton:sdfNarrowBandOuter
         at parse time. The absolute distance used for SDF generation is computed
         as fraction * bbox_diagonal.
 
-        A value of 0 (default) means "not set"; sdfNarrowBandOuter is used.
+        If `newton:sdfNarrowBandOuterFraction` is set to `-inf`,
+        newton:sdfNarrowBandOuter is used instead.
 
-        Range: [0, inf)
+        Range: (0, inf)
         Units: dimensionless"""
         limits = {
             dictionary hard = {
@@ -519,7 +523,7 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         (half the memory of "float32"). "float32" stores full-precision values.
         "uint8" uses 8-bit textures for minimum memory."""
     )
-    uniform float newton:sdfMargin = 0.05 (
+    uniform float newton:sdfMargin = -inf (
         doc = """SDF boundary margin.
 
         Enlarges the SDF boundary beyond the mesh AABB by this distance,
@@ -528,7 +532,10 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         This is separate from newton:contactMargin which controls collision
         detection inflation.
 
-        Range: [0, inf)
+        If `newton:sdfMargin` is set to `-inf`, newton:contactGap is used
+        instead.
+
+        Range: (0, inf)
         Units: distance"""
         limits = {
             dictionary hard = {
@@ -536,17 +543,18 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
             }
         }
     )
-    uniform float newton:sdfMarginFraction = 0 (
+    uniform float newton:sdfMarginFraction = -inf (
         doc = """SDF boundary margin as a fraction of the local-space bounding
         box diagonal.
 
-        When authored with a non-zero value, overrides newton:sdfMargin at
+        When authored with a positive value, overrides newton:sdfMargin at
         parse time. The absolute distance used for SDF generation is computed
         as fraction * bbox_diagonal.
 
-        A value of 0 (default) means "not set"; sdfMargin is used.
+        If `newton:sdfMarginFraction` is set to `-inf`, newton:sdfMargin is
+        used instead.
 
-        Range: [0, inf)
+        Range: (0, inf)
         Units: dimensionless"""
         limits = {
             dictionary hard = {
