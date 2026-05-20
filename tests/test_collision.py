@@ -100,8 +100,6 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
         self.assertTrue(self.prim.HasAPI("PhysicsCollisionAPI"))
         self.assertFalse(self.prim.HasAPI("NewtonMeshCollisionAPI"))
 
-        # Enable bool
-        self.assertTrue(self.prim.HasAttribute("newton:sdfEnabled"))
         # SDF attrs
         self.assertTrue(self.prim.HasAttribute("newton:sdfMaxResolution"))
         self.assertTrue(self.prim.HasAttribute("newton:sdfTargetVoxelSize"))
@@ -122,17 +120,6 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
     def test_api_limitations(self):
         xform: Usd.Prim = UsdGeom.Xform.Define(self.stage, "/InvalidType").GetPrim()
         self.assertFalse(xform.CanApplyAPI("NewtonSDFCollisionAPI"))
-
-    def test_sdf_enabled(self):
-        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
-        attr = self.prim.GetAttribute("newton:sdfEnabled")
-        self.assertIsNotNone(attr)
-        self.assertFalse(attr.HasAuthoredValue())
-        self.assertTrue(attr.Get())
-
-        attr.Set(False)
-        self.assertTrue(attr.HasAuthoredValue())
-        self.assertFalse(attr.Get())
 
     def test_sdf_max_resolution(self):
         self.prim.ApplyAPI("NewtonSDFCollisionAPI")

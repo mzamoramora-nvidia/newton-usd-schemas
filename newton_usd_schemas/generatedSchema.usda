@@ -416,13 +416,6 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
     and `PhysicsCollisionAPI` schemas."""
 )
 {
-    bool newton:sdfEnabled = true (
-        doc = """Toggles SDF collision for this shape.
-
-        When false, the SDF is not built during finalization even though the
-        API remains applied and all parameters are preserved. This follows
-        the same pattern as physics:rigidBodyEnabled."""
-    )
     uniform int newton:sdfMaxResolution = 64 (
         doc = """Maximum dimension for the sparse SDF grid.
 
