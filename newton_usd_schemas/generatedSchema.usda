@@ -561,17 +561,16 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         both shapes in a colliding pair must have this attribute true for
         hydroelastic contacts to be generated. Requires SDF to be configured."""
     )
-    float newton:kh = 1e10 (
-        doc = """Hydroelastic contact stiffness coefficient [N/m^3].
+    float newton:hydroelasticStiffness = 1e10 (
+        doc = """Hydroelastic contact stiffness coefficient.
 
-        Volumetric stiffness for the hydroelastic contact model. Contact force
-        is computed as: force = kh_eff * area * depth, where kh_eff is the
-        effective stiffness of the two shapes in series (harmonic mean).
-        Higher values produce stiffer contacts. Only consulted when
-        newton:hydroelasticEnabled is true.
+        Contact force is computed as: force = k_eff * area * depth, where
+        k_eff is the effective stiffness of the two shapes in series
+        (harmonic mean). Higher values produce stiffer contacts. Only
+        consulted when newton:hydroelasticEnabled is true.
 
         Range: (0, inf)
-        Units: pascal"""
+        Units: force / (distance * distance * distance)"""
         limits = {
             dictionary hard = {
                 float minimum = 0
