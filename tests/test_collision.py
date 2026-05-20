@@ -98,6 +98,7 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
         self.assertTrue(self.prim.HasAPI("NewtonSDFCollisionAPI"))
         self.assertTrue(self.prim.HasAPI("NewtonCollisionAPI"))
         self.assertTrue(self.prim.HasAPI("PhysicsCollisionAPI"))
+        self.assertFalse(self.prim.HasAPI("NewtonMeshCollisionAPI"))
 
         # Enable bool
         self.assertTrue(self.prim.HasAttribute("newton:sdfEnabled"))
