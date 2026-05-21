@@ -397,6 +397,30 @@ class NewtonCollisionAPI "NewtonCollisionAPI" (
     )
 }
 
+class NewtonMeshCollisionAPI "NewtonMeshCollisionAPI" (
+    apiSchemas = ["NewtonCollisionAPI", "PhysicsMeshCollisionAPI"]
+    doc = """NewtonMeshCollisionAPI applies on top of a Mesh, providing extra mesh collision attributes for Newton.
+
+    By applying this schema, the prim also inherits the `PhysicsCollisionAPI`, `NewtonCollisionAPI` and `PhysicsMeshCollisionAPI` schemas."""
+)
+{
+    uniform int newton:maxHullVertices = -1 (
+        doc = """Maximum number of vertices in the resulting convex hull approximation.
+
+        This value is only relevant when `physics:approximation = "convexHull"`.
+
+        If `newton:maxHullVertices` is set to -1, the hull computation should use as many vertices as necessary to produce a perfect convex hull.
+
+        Range: [-1, inf)
+        Units: dimensionless"""
+        limits = {
+            dictionary hard = {
+                int minimum = -1
+            }
+        }
+    )
+}
+
 class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
     apiSchemas = ["NewtonCollisionAPI"]
     doc = """Configures SDF-based collision (and optional hydroelastic contact).
@@ -512,30 +536,6 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         limits = {
             dictionary hard = {
                 float minimum = 0
-            }
-        }
-    )
-}
-
-class NewtonMeshCollisionAPI "NewtonMeshCollisionAPI" (
-    apiSchemas = ["NewtonCollisionAPI", "PhysicsMeshCollisionAPI"]
-    doc = """NewtonMeshCollisionAPI applies on top of a Mesh, providing extra mesh collision attributes for Newton.
-
-    By applying this schema, the prim also inherits the `PhysicsCollisionAPI`, `NewtonCollisionAPI` and `PhysicsMeshCollisionAPI` schemas."""
-)
-{
-    uniform int newton:maxHullVertices = -1 (
-        doc = """Maximum number of vertices in the resulting convex hull approximation.
-
-        This value is only relevant when `physics:approximation = "convexHull"`.
-
-        If `newton:maxHullVertices` is set to -1, the hull computation should use as many vertices as necessary to produce a perfect convex hull.
-
-        Range: [-1, inf)
-        Units: dimensionless"""
-        limits = {
-            dictionary hard = {
-                int minimum = -1
             }
         }
     )
