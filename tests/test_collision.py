@@ -106,6 +106,7 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
         self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandInner"))
         self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandOuter"))
         self.assertTrue(self.prim.HasAttribute("newton:sdfTextureFormat"))
+        self.assertTrue(self.prim.HasAttribute("newton:sdfMargin"))
         # Fractional variants
         self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandInnerFraction"))
         self.assertTrue(self.prim.HasAttribute("newton:sdfNarrowBandOuterFraction"))
@@ -227,6 +228,23 @@ class TestNewtonSDFCollisionAPI(unittest.TestCase):
         attr.Set(0.01)
         self.assertTrue(attr.HasAuthoredValue())
         self.assertAlmostEqual(attr.Get(), 0.01)
+
+        if USD_HAS_LIMITS:
+            hard = attr.GetHardLimits()
+            self.assertTrue(hard.IsValid())
+            self.assertAlmostEqual(hard.GetMinimum(), 0.0)
+            self.assertIsNone(hard.GetMaximum())
+
+    def test_sdf_margin(self):
+        self.prim.ApplyAPI("NewtonSDFCollisionAPI")
+        attr = self.prim.GetAttribute("newton:sdfMargin")
+        self.assertIsNotNone(attr)
+        self.assertFalse(attr.HasAuthoredValue())
+        self.assertEqual(attr.Get(), -math.inf)
+
+        attr.Set(0.05)
+        self.assertTrue(attr.HasAuthoredValue())
+        self.assertAlmostEqual(attr.Get(), 0.05)
 
         if USD_HAS_LIMITS:
             hard = attr.GetHardLimits()
