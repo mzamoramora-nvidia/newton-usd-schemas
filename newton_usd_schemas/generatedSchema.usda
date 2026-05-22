@@ -521,7 +521,7 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
 
         When true, the shape participates in hydroelastic contact generation;
         both shapes in a colliding pair must have this attribute true for
-        hydroelastic contacts to be generated. Requires SDF to be configured."""
+        hydroelastic contacts to be generated."""
     )
     float newton:hydroelasticStiffness = 1e10 (
         doc = """Hydroelastic contact stiffness coefficient.
