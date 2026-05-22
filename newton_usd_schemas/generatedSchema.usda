@@ -426,9 +426,9 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
     doc = """Configures SDF-based collision (and optional hydroelastic contact).
 
     Applying this schema enables signed distance field (SDF) generation for
-    the collision shape. The SDF should be built from the base Gprim surface, using the configured resolution and narrow band parameters.
+    the collision shape. The SDF should be built from the base `Gprim` surface, using the configured resolution and narrow band parameters.
 
-    Hydroelastic contact is opt-in via newton:hydroelasticEnabled, and uses
+    Hydroelastic contact is opt-in via `newton:hydroelasticEnabled`, and uses
     the same SDF representation.
 
     By applying this schema, the prim also inherits the `NewtonCollisionAPI`
@@ -438,7 +438,7 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
     uniform int newton:sdfMaxResolution = 64 (
         doc = """Maximum dimension for the sparse SDF grid.
 
-        Must be divisible by 8. If newton:sdfTargetVoxelSize is also authored,
+        Must be divisible by 8. If `newton:sdfTargetVoxelSize` is also authored,
         target voxel size takes precedence.
 
         Range: [8, inf)
@@ -453,9 +453,9 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         doc = """Target voxel size for the sparse SDF grid.
 
         When authored with a positive value, takes precedence over
-        newton:sdfMaxResolution.
+        `newton:sdfMaxResolution`.
 
-        If `newton:sdfTargetVoxelSize` is set to `-inf`, newton:sdfMaxResolution
+        If `newton:sdfTargetVoxelSize` is set to `-inf`, `newton:sdfMaxResolution`
         is used instead.
 
         Range: (0, inf)
@@ -492,9 +492,9 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         allowedTokens = ["uint8", "uint16", "float32"]
         doc = """Subgrid texture storage format for the SDF.
 
-        "uint16" (default) stores subgrid voxels as 16-bit normalized textures
-        (half the memory of "float32"). "float32" stores full-precision values.
-        "uint8" uses 8-bit textures for minimum memory."""
+        `"uint16"` (default) stores subgrid voxels as 16-bit normalized textures
+        (half the memory of `"float32"`). `"float32"` stores full-precision values.
+        `"uint8"` uses 8-bit textures for minimum memory."""
     )
     uniform float newton:sdfMargin = -inf (
         doc = """SDF boundary margin.
@@ -502,10 +502,10 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
         Enlarges the SDF boundary beyond the mesh AABB by this distance,
         enabling precise distance queries slightly outside the geometry.
 
-        This is separate from newton:contactMargin which controls collision
+        This is separate from `newton:contactMargin` which controls collision
         detection inflation.
 
-        If `newton:sdfMargin` is set to `-inf`, newton:contactGap is used
+        If `newton:sdfMargin` is set to `-inf`, `newton:contactGap` is used
         instead.
 
         Range: (0, inf)
@@ -526,10 +526,10 @@ class NewtonSDFCollisionAPI "NewtonSDFCollisionAPI" (
     float newton:hydroelasticStiffness = 1e10 (
         doc = """Hydroelastic contact stiffness coefficient.
 
-        Contact force is computed as: force = k_eff * area * depth, where
-        k_eff is the effective stiffness of the two shapes in series
+        Contact force is computed as: `force = k_eff * area * depth`, where
+        `k_eff` is the effective stiffness of the two shapes in series
         (harmonic mean). Higher values produce stiffer contacts. Only
-        consulted when newton:hydroelasticEnabled is true.
+        consulted when `newton:hydroelasticEnabled` is true.
 
         Range: (0, inf)
         Units: force / (distance * distance * distance)"""
